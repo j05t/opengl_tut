@@ -202,6 +202,9 @@ int main()
 
         // rotate around z-axis
         glm::mat4 trans = glm::mat4(1.0f);
+
+        // translate to top right, then set rotation
+        trans = glm::translate(trans, glm::vec3(0.5, 0.5, 0.5));
         trans = glm::rotate(trans, glm::radians(rotation), glm::vec3(0.0, 0.0, 1.0));
         //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
 
