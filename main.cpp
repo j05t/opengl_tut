@@ -1,12 +1,17 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "shader_s.h"
 
 #include <iostream>
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -15,7 +20,10 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-float mixFactor = 0.2;
+// this is passed to the shader as a uniform
+float mixFactor = 0.2f;
+
+float rotation = 0.0f;
 
 int main()
 {
@@ -143,6 +151,21 @@ int main()
     stbi_image_free(data2);
 
 
+    // sample code for translation (remove me)
+    // create a point we want to translate
+    // glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    // create identity matrix
+    // glm::mat4 trans = glm::mat4(1.0f);
+    // set translation vector
+    // trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    // translate
+    // vec = trans * vec;
+    // output result
+    // std::cout << vec.x << vec.y << vec.z << std::endl;
+
+
+
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -176,6 +199,15 @@ int main()
         // corresponds to up/down key presses
         ourShader.setFloat("mixFactor", mixFactor);
 
+
+        // rotate around z-axis
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(trans, glm::radians(rotation), glm::vec3(0.0, 0.0, 1.0));
+        //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+        GLint transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -201,10 +233,17 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    // control texture mixing when up/down arrow keys pressed
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         mixFactor += 0.01;
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         mixFactor -= 0.01;
+
+    // rotate when left/right arrow keys pressed
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+        rotation -= 1.0;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+        rotation += 1.0;
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
